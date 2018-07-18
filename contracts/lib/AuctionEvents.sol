@@ -1,12 +1,12 @@
-pragma solidity ^0.4.12;
+pragma solidity ^0.4.24;
 
 import "../AuctionHouse.sol";
 
 contract AuctionEvents {
-    AuctionHouse public auctionHouse;
+    AuctionHouse public auction_house;
 
-    modifier onlyAuctionHouse {
-        require (msg.sender == address(auctionHouse));
+    modifier only_auction_house {
+        require (msg.sender == address(auction_house), "UNAUTHORIZED SENDER");
         _;
     }
 
@@ -14,10 +14,21 @@ contract AuctionEvents {
     /// @param merchant The merchant who has created a Vault
     /// @param vault The address of the Vault that has been created
     event VaultCreated (address merchant, address vault);
-    function vaultCreated (address merchant, address vault) 
+    function vault_created (address merchant, address vault) 
         public 
-        onlyAuctionHouse 
+        only_auction_house 
     {
         emit VaultCreated(merchant, vault);
+    }
+
+    /// @notice Listing created event
+    /// @param merchant The merchant who has created the listing
+    /// @param id The id of the listing that has been created
+    event ListingCreated (address merchant, uint id);
+    function listing_created (address merchant, uint id) 
+        public 
+        only_auction_house 
+    {
+        emit ListingCreated(merchant, id);
     }
 }
