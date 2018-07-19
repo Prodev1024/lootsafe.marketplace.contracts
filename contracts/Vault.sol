@@ -56,14 +56,14 @@ contract Vault {
     /// @notice Lock assets from withdraw
     /// @param asset Address of asset to be locked up
     /// @param amount Amount of asset to lock up
-    function lock_asset(address asset, uint256 amount) public only_parent {
+    function lock_asset (address asset, uint256 amount) public only_parent {
         locked_assets[asset] += amount;
     }
 
     /// @notice Unlock assets from withdraw
     /// @param asset Address of asset to be unlocked
     /// @param amount Amount of asset to unlocked
-    function unlock_asset(address asset, uint256 amount) public only_parent {
+    function unlock_asset (address asset, uint256 amount) public only_parent {
         require(locked_assets[asset] >= amount, "UNDERFLOW OF LOCKED ASSETS");
         locked_assets[asset] = locked_assets[asset] - amount;
     }

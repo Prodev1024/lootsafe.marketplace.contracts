@@ -32,13 +32,13 @@ contract AuctionHouse {
 
     /// @notice Get all listing ids
     /// @return Returns uint list of all active listing ids
-    function get_listings () public view returns (uint[]) {
+    function get_listings () external view returns (uint[]) {
         return listing_ids;
     }
 
     /// @notice Get a listing by id
     /// @return returns listing... id, date, merchant, asset, amount, value
-    function get_listing (uint id) public view returns (uint256, uint256, address, address, uint256, uint256) {
+    function get_listing (uint id) external view returns (uint256, uint256, address, address, uint256, uint256) {
         Listing memory listing = listings[id];
         return (
             listing.id,
@@ -48,6 +48,11 @@ contract AuctionHouse {
             listing.amount,
             listing.value
         );
+    }
+
+    /// @notice Get the address of senders vault
+    function my_vault () external view returns (address) {
+        return (vaults[msg.sender]);
     }
 
     /// @notice Create a listing on the marketplace
@@ -68,16 +73,42 @@ contract AuctionHouse {
             value: value
         });
 
+        Vault(vault).lock_asset(asset, amount);
+
         uint id = listings.push(listing) - 1;
         listing_ids.push(id);
 
         auction_events.listing_created(msg.sender, id);
     }
 
-    // listings
-    // merchants -> addresses
-    // listings by merchant id => listing
-    // events all the things
+    /// @notice Cancel a listing and unlock assets
+    /// @param id id of listing to cancel
+    function cancel_listing (uint id) public {
+        Listing storage listing = listings[id];
+        Vault memory vault = vaults[msg.sender];
+
+        require(listing != 0x0, "UNKNOWN LISTING");
+        require(vault != 0x0, "MISSING VAULT");
+        require(msg.sender == listing.merchant, "UNAUTHORIZED MERCHANT");
+
+        Vault(vaults[msg.sender]).unlock_asset(listing.asset, listing.amount);
+
+        // TODO: check this logic
+        delete listings[id];
+        delete listing_ids[id];
+    }
+
+    // TODO: Fulfil Listing
+    function fulfil_listing (uint id) public {
+        Listing storage listing = listings[id];
+        Vault memory vault = vaults[msg.sender];
+
+        require(listing != 0x0, "UNKNOWN LISTING");
+        require(vault != 0x0, "MISSING VAULT");
+        // require sender's vault to have value balance of base
+
+        // send base token from
+    }
 
     /// @notice Utilize the fallback function, send 0 ETH to create a new vault for the merchant
     function () public payable {
