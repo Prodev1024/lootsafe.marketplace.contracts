@@ -22,6 +22,8 @@ contract Market {
         market_events = new MarketEvents();
     }
 
+    // My trades needs to exist
+
     /// @notice Get all listing ids
     /// @return Uint list of all active listing ids
     function get_listings () external view returns (uint[]) {
@@ -79,8 +81,6 @@ contract Market {
         Cellar.Listing storage listing = listings[id];
         Vault vault = Vault(vaults[msg.sender]);
 
-        require(listing.id != 0x0, "UNKNOWN LISTING");
-        require(vaults[msg.sender] != 0x0, "MISSING VAULT");
         require(msg.sender == listing.merchant, "UNAUTHORIZED MERCHANT");
 
         vault.unlock_asset(listing.asset, listing.amount);
