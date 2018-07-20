@@ -3,11 +3,11 @@
 pragma solidity ^0.4.24;
 
 import "./lib/EIP20Interface.sol";
-import "./AuctionHouse.sol";
+import "./Market.sol";
 
 contract Vault {
     /* The Vault acts as a storage account managed by two parties.
-    Either the Contract (AuctionHouse) or the Merchant (you!) can 
+    Either the Contract (Market) or the Merchant (you!) can
     withdraw or manage funds accordingly, additional security is 
     added to prevent wasting other parties gas, for instance if an
     asset is locked in a listing offer the vault will prevent withdraw 
@@ -18,7 +18,7 @@ contract Vault {
     /// @notice Assets currently locked in functionality by parent contract
     mapping (address => uint256) locked_assets;
 
-    AuctionHouse public parent; // Origin contract
+    Market public parent; // Origin contract
     address public merchant; // Owner of this inventory
 
     /// @notice Allows ONLY the merchant to execute
@@ -42,7 +42,7 @@ contract Vault {
     /// @notice Vault constructor
     /// @param _merchant The owner of this Vault, 
     constructor (address _merchant) public {
-        parent = AuctionHouse(msg.sender);
+        parent = Market(msg.sender);
         merchant = _merchant;
     }
 

@@ -1,26 +1,17 @@
 pragma solidity ^0.4.24;
 
 import "./lib/Cellar.sol";
-import "./lib/AuctionEvents.sol";
+import "./lib/MarketEvents.sol";
 import "./Vault.sol";
 
-contract AuctionHouse {
+contract Market {
     using Cellar for Cellar.Listing;
-    AuctionEvents public auction_events;
-
-    struct Listing {
-        uint256 id;         // ID of the listing
-        uint256 date;       // When was the listing listed
-        address merchant;   // Address of Merchant
-        address asset;      // What item are they selling
-        uint256 amount;     // How many of the item are they selling
-        uint256 value;      // How much are they selling the item for
-    }
+    MarketEvents public market_events;
 
     address public base;
     address public owner;
 
-    Listing[] public listings;
+    Cellar.Listing[] public listings;
     uint[] public listing_ids;
 
     mapping (address => address) public vaults;
@@ -28,6 +19,7 @@ contract AuctionHouse {
     constructor (address _base) public {
         owner = msg.sender;
         base = _base;
+        market_events = new MarketEvents();
     }
 
     /// @notice Get all listing ids
@@ -39,7 +31,7 @@ contract AuctionHouse {
     /// @notice Get a listing by id
     /// @return listing... id, date, merchant, asset, amount, value
     function get_listing (uint id) external view returns (uint256, uint256, address, address, uint256, uint256) {
-        Listing memory listing = listings[id];
+        Cellar.Listing memory listing = listings[id];
         return (
             listing.id,
             listing.date,
@@ -64,7 +56,7 @@ contract AuctionHouse {
         require(vaults[msg.sender] != 0x0, "NO VAULT EXISTS");
         require(vault.has_balance(asset, amount), "INSUFFICIENT VAULT BALANCE");
 
-        Listing memory listing = Listing({
+        Cellar.Listing memory listing = Cellar.Listing({
             id: listing_ids.length,
             date: block.timestamp,
             merchant: msg.sender,
@@ -78,13 +70,13 @@ contract AuctionHouse {
         uint id = listings.push(listing) - 1;
         listing_ids.push(id);
 
-        auction_events.listing_created(msg.sender, id);
+        market_events.listing_created(msg.sender, id);
     }
 
     /// @notice Cancel a listing and unlock assets
     /// @param id Id of listing to cancel
     function cancel_listing (uint id) public {
-        Listing storage listing = listings[id];
+        Cellar.Listing storage listing = listings[id];
         Vault vault = Vault(vaults[msg.sender]);
 
         require(listing.id != 0x0, "UNKNOWN LISTING");
@@ -92,15 +84,17 @@ contract AuctionHouse {
         require(msg.sender == listing.merchant, "UNAUTHORIZED MERCHANT");
 
         vault.unlock_asset(listing.asset, listing.amount);
-        // TODO: check this logic
+
         delete listings[id];
         delete listing_ids[id];
+
+        market_events.listing_cancelled(id);
     }
 
     /// @notice Fulfil a listing and purchase merchants asset
     /// @param id Id of the listing to fulfil
     function fulfil_listing (uint id) public {
-        Listing storage listing = listings[id];
+        Cellar.Listing storage listing = listings[id];
         require(listing.id != 0x0, "UNKNOWN LISTING");
 
         Vault vault = Vault(vaults[msg.sender]);
@@ -115,6 +109,8 @@ contract AuctionHouse {
 
         delete listings[id];
         delete listing_ids[id];
+
+        market_events.listing_fulfilled(id, msg.sender);
     }
 
     /// @notice Utilize the fallback function, send 0 ETH to create a new vault for the merchant
@@ -127,6 +123,6 @@ contract AuctionHouse {
         );
 
         // Vault Creation Event
-        auction_events.vault_created(msg.sender, vaults[msg.sender]);
+        market_events.vault_created(msg.sender, vaults[msg.sender]);
     }
 }
