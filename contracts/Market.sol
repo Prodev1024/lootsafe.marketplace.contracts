@@ -40,7 +40,8 @@ contract Market {
             listing.merchant,
             listing.asset,
             listing.amount,
-            listing.value
+            listing.value,
+            listing.status
         );
     }
 
@@ -64,7 +65,8 @@ contract Market {
             merchant: msg.sender,
             asset: asset,
             amount: amount,
-            value: value
+            value: value,
+            status: 0
         });
 
         vault.lock_asset(asset, amount);
@@ -85,8 +87,7 @@ contract Market {
 
         vault.unlock_asset(listing.asset, listing.amount);
 
-        delete listings[id];
-        delete listing_ids[id];
+        listing.status = 2;
 
         market_events.listing_cancelled(id);
     }
@@ -107,8 +108,7 @@ contract Market {
         merchant_vault.transfer(msg.sender, listing.asset, listing.amount);
         merchant_vault.unlock_asset(listing.asset, listing.amount);
 
-        delete listings[id];
-        delete listing_ids[id];
+        listing.status = 1;
 
         market_events.listing_fulfilled(id, msg.sender);
     }

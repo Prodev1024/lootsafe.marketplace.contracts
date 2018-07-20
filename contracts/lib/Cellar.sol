@@ -10,5 +10,6 @@ library Cellar {
         address asset;      // What item are they selling
         uint256 amount;     // How many of the item are they selling
         uint256 value;      // How much are they selling the item for
+        uint status;        // 0 - active, 1 - fulfilled, 2 - cancelled
     }
 }
