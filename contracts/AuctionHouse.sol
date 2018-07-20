@@ -60,9 +60,9 @@ contract AuctionHouse {
     /// @param amount Amount of asset to sell
     /// @param value How much to sell asset for
     function create_listing (address asset, uint256 amount, uint256 value) public {
-        address vault = vaults[msg.sender];
-        require(vault != 0x0, "NO VAULT EXISTS");
-        require(Vault(vault).has_balance(asset, amount), "INSUFFICIENT VAULT BALANCE");
+        Vault vault = Vault(vaults[msg.sender]);
+        require(vaults[msg.sender] != 0x0, "NO VAULT EXISTS");
+        require(vault.has_balance(asset, amount), "INSUFFICIENT VAULT BALANCE");
 
         Listing memory listing = Listing({
             id: listing_ids.length,
@@ -73,7 +73,7 @@ contract AuctionHouse {
             value: value
         });
 
-        Vault(vault).lock_asset(asset, amount);
+        vault.lock_asset(asset, amount);
 
         uint id = listings.push(listing) - 1;
         listing_ids.push(id);
@@ -85,14 +85,13 @@ contract AuctionHouse {
     /// @param id id of listing to cancel
     function cancel_listing (uint id) public {
         Listing storage listing = listings[id];
-        Vault memory vault = vaults[msg.sender];
+        Vault vault = Vault(vaults[msg.sender]);
 
-        require(listing != 0x0, "UNKNOWN LISTING");
-        require(vault != 0x0, "MISSING VAULT");
+        require(listing.id != 0x0, "UNKNOWN LISTING");
+        require(vaults[msg.sender] != 0x0, "MISSING VAULT");
         require(msg.sender == listing.merchant, "UNAUTHORIZED MERCHANT");
 
-        Vault(vaults[msg.sender]).unlock_asset(listing.asset, listing.amount);
-
+        vault.unlock_asset(listing.asset, listing.amount);
         // TODO: check this logic
         delete listings[id];
         delete listing_ids[id];
@@ -101,13 +100,20 @@ contract AuctionHouse {
     // TODO: Fulfil Listing
     function fulfil_listing (uint id) public {
         Listing storage listing = listings[id];
-        Vault memory vault = vaults[msg.sender];
+        require(listing.id != 0x0, "UNKNOWN LISTING");
 
-        require(listing != 0x0, "UNKNOWN LISTING");
-        require(vault != 0x0, "MISSING VAULT");
-        // require sender's vault to have value balance of base
+        Vault vault = Vault(vaults[msg.sender]);
+        Vault merchant_vault = Vault(vaults[listing.merchant]);
 
-        // send base token from
+        require(vaults[msg.sender] != 0x0, "MISSING VAULT");
+        require(vault.has_balance(base, listing.value), "INSUFFICIENT FUNDS");
+
+        vault.transfer(listing.merchant, base, listing.value);
+        merchant_vault.transfer(msg.sender, listing.asset, listing.amount);
+        merchant_vault.unlock_asset(listing.asset, listing.amount);
+
+        delete listings[id];
+        delete listing_ids[id];
     }
 
     /// @notice Utilize the fallback function, send 0 ETH to create a new vault for the merchant

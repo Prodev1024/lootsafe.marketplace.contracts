@@ -48,7 +48,7 @@ contract Vault {
 
     /// @notice Check balances of assets
     /// @param asset Address of asset to check balance of
-    /// @param amount Amount of asset expected to have
+    /// @param value Value expected to have
     function has_balance (address asset, uint256 value) public returns (bool) {
         return (EIP20Interface(asset).balanceOf(this) >= value);
     }
