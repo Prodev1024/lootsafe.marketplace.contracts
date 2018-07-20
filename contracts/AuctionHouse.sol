@@ -31,13 +31,13 @@ contract AuctionHouse {
     }
 
     /// @notice Get all listing ids
-    /// @return Returns uint list of all active listing ids
+    /// @return Uint list of all active listing ids
     function get_listings () external view returns (uint[]) {
         return listing_ids;
     }
 
     /// @notice Get a listing by id
-    /// @return returns listing... id, date, merchant, asset, amount, value
+    /// @return listing... id, date, merchant, asset, amount, value
     function get_listing (uint id) external view returns (uint256, uint256, address, address, uint256, uint256) {
         Listing memory listing = listings[id];
         return (
@@ -82,7 +82,7 @@ contract AuctionHouse {
     }
 
     /// @notice Cancel a listing and unlock assets
-    /// @param id id of listing to cancel
+    /// @param id Id of listing to cancel
     function cancel_listing (uint id) public {
         Listing storage listing = listings[id];
         Vault vault = Vault(vaults[msg.sender]);
@@ -97,7 +97,8 @@ contract AuctionHouse {
         delete listing_ids[id];
     }
 
-    // TODO: Fulfil Listing
+    /// @notice Fulfil a listing and purchase merchants asset
+    /// @param id Id of the listing to fulfil
     function fulfil_listing (uint id) public {
         Listing storage listing = listings[id];
         require(listing.id != 0x0, "UNKNOWN LISTING");
