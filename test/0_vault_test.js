@@ -65,7 +65,7 @@ contract('Market', (accounts) => {
         await Vault.at(vault).withdrawal(sword.address, 1);
         const vault_balance = await Vault.at(vault).has_balance.call(sword.address, 1);
         const merchant_balance = await sword.balanceOf.call(accounts[0]);
-        if (vault_balance) throw new Error('Vault didnt unlock funds');
+        if (vault_balance) throw new Error('Vault didn\'t unlock funds');
         if (merchant_balance.toString() != '1000') throw new Error('Merchant didnt get funds back');
     });
 });

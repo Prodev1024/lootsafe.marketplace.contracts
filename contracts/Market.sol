@@ -32,7 +32,7 @@ contract Market {
 
     /// @notice Get a listing by id
     /// @return listing... id, date, merchant, asset, amount, value
-    function get_listing (uint id) external view returns (uint256, uint256, address, address, uint256, uint256) {
+    function get_listing (uint id) external view returns (uint256, uint256, address, address, uint256, uint256, uint) {
         Cellar.Listing memory listing = listings[id];
         return (
             listing.id,
@@ -83,6 +83,7 @@ contract Market {
         Cellar.Listing storage listing = listings[id];
         Vault vault = Vault(vaults[msg.sender]);
 
+        require(listing.status == 0, "LISTING NOT ACTIVE");
         require(msg.sender == listing.merchant, "UNAUTHORIZED MERCHANT");
 
         vault.unlock_asset(listing.asset, listing.amount);
@@ -92,11 +93,11 @@ contract Market {
         market_events.listing_cancelled(id);
     }
 
-    /// @notice Fulfil a listing and purchase merchants asset
+    /// @notice Fulfill a listing and purchase merchants asset
     /// @param id Id of the listing to fulfil
-    function fulfil_listing (uint id) public {
+    function fulfill_listing (uint id) public {
         Cellar.Listing storage listing = listings[id];
-        require(listing.id != 0x0, "UNKNOWN LISTING");
+        require(listing.status == 0, "LISTING NOT ACTIVE");
 
         Vault vault = Vault(vaults[msg.sender]);
         Vault merchant_vault = Vault(vaults[listing.merchant]);
