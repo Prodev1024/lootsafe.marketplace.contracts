@@ -1,6 +1,7 @@
-* [AuctionHouse](#auctionhouse)
-  * [fulfil_listing](#function-fulfil_listing)
+* [Market](#market)
   * [listing_ids](#function-listing_ids)
+  * [market_events](#function-market_events)
+  * [fulfill_listing](#function-fulfill_listing)
   * [create_listing](#function-create_listing)
   * [base](#function-base)
   * [my_vault](#function-my_vault)
@@ -10,7 +11,6 @@
   * [listings](#function-listings)
   * [cancel_listing](#function-cancel_listing)
   * [get_listing](#function-get_listing)
-  * [auction_events](#function-auction_events)
 * [Vault](#vault)
   * [withdrawal](#function-withdrawal)
   * [parent](#function-parent)
@@ -20,12 +20,6 @@
   * [unlock_asset](#function-unlock_asset)
   * [merchant](#function-merchant)
   * [transfer](#function-transfer)
-* [AuctionEvents](#auctionevents)
-  * [listing_created](#function-listing_created)
-  * [auction_house](#function-auction_house)
-  * [vault_created](#function-vault_created)
-  * [VaultCreated](#event-vaultcreated)
-  * [ListingCreated](#event-listingcreated)
 * [Cellar](#cellar)
 * [EIP20Interface](#eip20interface)
   * [approve](#function-approve)
@@ -36,25 +30,23 @@
   * [allowance](#function-allowance)
   * [Transfer](#event-transfer)
   * [Approval](#event-approval)
+* [MarketEvents](#marketevents)
+  * [listing_fulfilled](#function-listing_fulfilled)
+  * [listing_cancelled](#function-listing_cancelled)
+  * [market](#function-market)
+  * [listing_created](#function-listing_created)
+  * [vault_created](#function-vault_created)
+  * [VaultCreated](#event-vaultcreated)
+  * [ListingCreated](#event-listingcreated)
+  * [ListingFulfilled](#event-listingfulfilled)
+  * [ListingCancelled](#event-listingcancelled)
 
-# AuctionHouse
-
-
-## *function* fulfil_listing
-
-AuctionHouse.fulfil_listing(id) `nonpayable` `212eff5e`
-
-
-Inputs
-
-| **type** | **name** | **description** |
-|-|-|-|
-| *uint256* | id | undefined |
+# Market
 
 
 ## *function* listing_ids
 
-AuctionHouse.listing_ids() `view` `289aa130`
+Market.listing_ids() `view` `289aa130`
 
 
 Inputs
@@ -64,9 +56,31 @@ Inputs
 | *uint256* |  | undefined |
 
 
+## *function* market_events
+
+Market.market_events() `view` `2b039d91`
+
+
+
+
+
+## *function* fulfill_listing
+
+Market.fulfill_listing(id) `nonpayable` `361d8a3f`
+
+**Fulfill a listing and purchase merchants asset**
+
+
+Inputs
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *uint256* | id | Id of the listing to fulfil |
+
+
 ## *function* create_listing
 
-AuctionHouse.create_listing(asset, amount, value) `nonpayable` `389b0dc4`
+Market.create_listing(asset, amount, value) `nonpayable` `389b0dc4`
 
 **Create a listing on the marketplace**
 
@@ -82,7 +96,7 @@ Inputs
 
 ## *function* base
 
-AuctionHouse.base() `view` `5001f3b5`
+Market.base() `view` `5001f3b5`
 
 
 
@@ -90,7 +104,7 @@ AuctionHouse.base() `view` `5001f3b5`
 
 ## *function* my_vault
 
-AuctionHouse.my_vault() `view` `5b680349`
+Market.my_vault() `view` `5b680349`
 
 **Get the address of senders vault**
 
@@ -100,7 +114,7 @@ AuctionHouse.my_vault() `view` `5b680349`
 
 ## *function* get_listings
 
-AuctionHouse.get_listings() `view` `65c4c884`
+Market.get_listings() `view` `65c4c884`
 
 **Get all listing ids**
 
@@ -115,7 +129,7 @@ Outputs
 
 ## *function* owner
 
-AuctionHouse.owner() `view` `8da5cb5b`
+Market.owner() `view` `8da5cb5b`
 
 
 
@@ -123,7 +137,7 @@ AuctionHouse.owner() `view` `8da5cb5b`
 
 ## *function* vaults
 
-AuctionHouse.vaults() `view` `a622ee7c`
+Market.vaults() `view` `a622ee7c`
 
 
 Inputs
@@ -135,7 +149,7 @@ Inputs
 
 ## *function* listings
 
-AuctionHouse.listings() `view` `de74e57b`
+Market.listings() `view` `de74e57b`
 
 
 Inputs
@@ -147,7 +161,7 @@ Inputs
 
 ## *function* cancel_listing
 
-AuctionHouse.cancel_listing(id) `nonpayable` `e4e0dd77`
+Market.cancel_listing(id) `nonpayable` `e4e0dd77`
 
 **Cancel a listing and unlock assets**
 
@@ -156,12 +170,12 @@ Inputs
 
 | **type** | **name** | **description** |
 |-|-|-|
-| *uint256* | id | id of listing to cancel |
+| *uint256* | id | Id of listing to cancel |
 
 
 ## *function* get_listing
 
-AuctionHouse.get_listing(id) `view` `fed69702`
+Market.get_listing(id) `view` `fed69702`
 
 **Get a listing by id**
 
@@ -182,14 +196,7 @@ Outputs
 | *address* |  | undefined |
 | *uint256* |  | undefined |
 | *uint256* |  | undefined |
-
-## *function* auction_events
-
-AuctionHouse.auction_events() `view` `fffab44d`
-
-
-
-
+| *uint256* |  | undefined |
 
 
 
@@ -298,66 +305,6 @@ Inputs
 | *address* | asset | The asset to transfer |
 | *uint256* | value | The amount of asset to be transferred |
 
-
-
----
-# AuctionEvents
-
-
-## *function* listing_created
-
-AuctionEvents.listing_created(merchant, id) `nonpayable` `9448875f`
-
-
-Inputs
-
-| **type** | **name** | **description** |
-|-|-|-|
-| *address* | merchant | undefined |
-| *uint256* | id | undefined |
-
-
-## *function* auction_house
-
-AuctionEvents.auction_house() `view` `d440deda`
-
-
-
-
-
-## *function* vault_created
-
-AuctionEvents.vault_created(merchant, vault) `nonpayable` `db5bca90`
-
-
-Inputs
-
-| **type** | **name** | **description** |
-|-|-|-|
-| *address* | merchant | undefined |
-| *address* | vault | undefined |
-
-## *event* VaultCreated
-
-AuctionEvents.VaultCreated(merchant, vault) `5d9c31ff`
-
-Arguments
-
-| **type** | **name** | **description** |
-|-|-|-|
-| *address* | merchant | not indexed |
-| *address* | vault | not indexed |
-
-## *event* ListingCreated
-
-AuctionEvents.ListingCreated(merchant, id) `f060b874`
-
-Arguments
-
-| **type** | **name** | **description** |
-|-|-|-|
-| *address* | merchant | not indexed |
-| *uint256* | id | not indexed |
 
 
 ---
@@ -494,6 +441,113 @@ Arguments
 | *address* | _owner | indexed |
 | *address* | _spender | indexed |
 | *uint256* | _value | not indexed |
+
+
+---
+# MarketEvents
+
+
+## *function* listing_fulfilled
+
+MarketEvents.listing_fulfilled(id, buyer) `nonpayable` `30f27e2f`
+
+
+Inputs
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *uint256* | id | undefined |
+| *address* | buyer | undefined |
+
+
+## *function* listing_cancelled
+
+MarketEvents.listing_cancelled(id) `nonpayable` `5efca922`
+
+
+Inputs
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *uint256* | id | undefined |
+
+
+## *function* market
+
+MarketEvents.market() `view` `80f55605`
+
+
+
+
+
+## *function* listing_created
+
+MarketEvents.listing_created(merchant, id) `nonpayable` `9448875f`
+
+
+Inputs
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *address* | merchant | undefined |
+| *uint256* | id | undefined |
+
+
+## *function* vault_created
+
+MarketEvents.vault_created(merchant, vault) `nonpayable` `db5bca90`
+
+
+Inputs
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *address* | merchant | undefined |
+| *address* | vault | undefined |
+
+
+## *event* VaultCreated
+
+MarketEvents.VaultCreated(merchant, vault) `5d9c31ff`
+
+Arguments
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *address* | merchant | not indexed |
+| *address* | vault | not indexed |
+
+## *event* ListingCreated
+
+MarketEvents.ListingCreated(merchant, id) `f060b874`
+
+Arguments
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *address* | merchant | not indexed |
+| *uint256* | id | not indexed |
+
+## *event* ListingFulfilled
+
+MarketEvents.ListingFulfilled(id, buyer) `d09f1e54`
+
+Arguments
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *uint256* | id | not indexed |
+| *address* | buyer | not indexed |
+
+## *event* ListingCancelled
+
+MarketEvents.ListingCancelled(id) `411aee90`
+
+Arguments
+
+| **type** | **name** | **description** |
+|-|-|-|
+| *uint256* | id | not indexed |
 
 
 ---
