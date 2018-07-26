@@ -12,7 +12,7 @@ contract Market {
     address public owner;
 
     Cellar.Listing[] public listings;
-    uint listing_count;
+    uint public listing_count;
 
     mapping (address => address) public vaults;
 
@@ -20,14 +20,6 @@ contract Market {
         owner = msg.sender;
         base = _base;
         market_events = new MarketEvents();
-    }
-
-    // My trades needs to exist
-
-    /// @notice Get all listing ids
-    /// @return Uint list of all active listing ids
-    function get_listings () external view returns (uint[]) {
-        return listing_ids;
     }
 
     /// @notice Get a listing by id
