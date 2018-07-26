@@ -12,7 +12,7 @@ contract Market {
     address public owner;
 
     Cellar.Listing[] public listings;
-    uint[] public listing_ids;
+    uint listing_count;
 
     mapping (address => address) public vaults;
 
@@ -60,7 +60,7 @@ contract Market {
         require(vault.has_balance(asset, amount), "INSUFFICIENT VAULT BALANCE");
 
         Cellar.Listing memory listing = Cellar.Listing({
-            id: listing_ids.length,
+            id: listing_count,
             date: block.timestamp,
             merchant: msg.sender,
             asset: asset,
@@ -71,8 +71,7 @@ contract Market {
 
         vault.lock_asset(asset, amount);
 
-        uint id = listings.push(listing) - 1;
-        listing_ids.push(id);
+        listing_count++;
 
         market_events.listing_created(msg.sender, id);
     }

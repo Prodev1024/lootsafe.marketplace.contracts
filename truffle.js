@@ -15,4 +15,18 @@
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
+    networks: {
+        development: {
+              host: "localhost",
+              port: 8545,
+              network_id: "*" // Match any network id
+        },
+        rinkeby: {
+            host: "18.188.26.7", // Connect to geth on the specified
+            port: 8545,
+            from: "0x60e8103256851cb8ab81a80714373b4d5ceec629", // default address to use for any transaction Truffle makes during migrations
+            network_id: "*", // Match any network id
+            gas: 7400000 // Gas limit used for deploys
+        }
+    }
 };
