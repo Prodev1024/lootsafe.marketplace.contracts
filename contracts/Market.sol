@@ -12,7 +12,7 @@ contract Market {
     address public owner;
 
     Cellar.Listing[] public listings;
-    uint public listing_count;
+    uint public listing_count = 0;
 
     mapping (address => address) public vaults;
 
@@ -20,26 +20,6 @@ contract Market {
         owner = msg.sender;
         base = _base;
         market_events = new MarketEvents();
-    }
-
-    /// @notice Get a listing by id
-    /// @return listing... id, date, merchant, asset, amount, value
-    function get_listing (uint id) external view returns (uint256, uint256, address, address, uint256, uint256, uint) {
-        Cellar.Listing memory listing = listings[id];
-        return (
-            listing.id,
-            listing.date,
-            listing.merchant,
-            listing.asset,
-            listing.amount,
-            listing.value,
-            listing.status
-        );
-    }
-
-    /// @notice Get the address of senders vault
-    function my_vault () external view returns (address) {
-        return (vaults[msg.sender]);
     }
 
     /// @notice Create a listing on the marketplace
@@ -63,9 +43,10 @@ contract Market {
 
         vault.lock_asset(asset, amount);
 
+        listings.push(listing);
         listing_count++;
 
-        market_events.listing_created(msg.sender, id);
+        market_events.listing_created(msg.sender, listing.id);
     }
 
     /// @notice Cancel a listing and unlock assets

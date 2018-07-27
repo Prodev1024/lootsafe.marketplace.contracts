@@ -6,6 +6,6 @@ const EIP20 = artifacts.require("./lib/EIP20.sol")
 
 module.exports = function(deployer) {
   Promise.all([
-    deployer.deploy(Market, "0x18e36dc3bA1456455FF8102F6d2CF5E91064D7f7"),
+    deployer.deploy(Market, "0xbF263D10291eb685eca7cf0108B51b94d8b4a41b"),
   ])
 }

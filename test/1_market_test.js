@@ -18,7 +18,7 @@ contract('Market', (accounts) => {
        await market.send(0, {from: accounts[1], gas: gasPrice});
        expectThrow(market.send(1, {from: accounts[1], gas: gasPrice}));
        expectThrow(market.send(0, {from: accounts[1], gas: gasPrice}));
-       const vault = await market.my_vault();
+       const vault = await market.vaults.call(accounts[1]);
        if (vault === undefined) throw new Error('Vault not created');
        if (market.address === undefined) throw new Error('deployment of market failed');
     });
@@ -28,10 +28,10 @@ contract('Market', (accounts) => {
         const sword = await EIP20.new(1000, "SWOR", 1, "SWOR");
         const market = await Market.new(token.address);
         await market.send(0, {gas: gasPrice});
-        const vault = await market.my_vault.call();
+        const vault = await market.vaults.call(accounts[0]);
         await sword.transfer(vault, 2);
         await market.create_listing(sword.address, 1, 10);
-        const listing = await market.get_listing(0);
+        const listing = await market.listings.call(0);
         if (listing[1].toString() == '0') throw new Error('Listing not created');
     });
 
@@ -47,7 +47,7 @@ contract('Market', (accounts) => {
         const sword = await EIP20.new(1000, "SWOR", 1, "SWOR");
         const market = await Market.new(token.address);
         await market.send(0, {gas: gasPrice});
-        const vault = await market.my_vault.call();
+        const vault = await market.vaults.call(accounts[0]);
         expectThrow(market.create_listing(sword.address, 1, 10));
     });
 
@@ -56,10 +56,10 @@ contract('Market', (accounts) => {
         const sword = await EIP20.new(1000, "SWOR", 1, "SWOR");
         const market = await Market.new(token.address);
         await market.send(0, {gas: gasPrice});
-        const vault = await market.my_vault.call();
+        const vault = await market.vaults.call(accounts[0]);
         await sword.transfer(vault, 2);
         await market.create_listing(sword.address, 1, 10);
-        const listing = await market.get_listing(0);
+        const listing = await market.listings.call(0);
         expectThrow(market.cancel_listing(1));
         expectThrow(market.cancel_listing(0, {from: accounts[1]}));
         await market.cancel_listing(0);
@@ -71,16 +71,16 @@ contract('Market', (accounts) => {
         const sword = await EIP20.new(1000, "SWOR", 1, "SWOR");
         const market = await Market.new(token.address);
         await market.send(0, {gas: gasPrice});
-        const vault = await market.my_vault.call();
+        const vault = await market.vaults.call(accounts[0]);
         await sword.transfer(vault, 2);
         await market.create_listing(sword.address, 1, 10);
-        const listing = await market.get_listing(0);
-        expectThrow(market.fulfill_listing(0));
+        const listing = await market.listings.call(0);
+        expectThrow(market.fulfill_listing(0, {from: accounts[1]}));
         await market.sendTransaction({from: accounts[1], value: 0, gas: gasPrice});
-        const vault_1 = await market.my_vault.call();
-        expectThrow(market.fulfill_listing(0));
+        const vault_1 = await market.vaults.call(accounts[1]);
+        expectThrow(market.fulfill_listing(0, {from: accounts[1]}));
         await token.transfer(vault_1, 200);
-        await market.fulfill_listing(0);
+        await market.fulfill_listing(0, {from: accounts[1]});
     })
 
     it('Should cancel a listing', async () => {
@@ -88,10 +88,10 @@ contract('Market', (accounts) => {
         const sword = await EIP20.new(1000, "SWOR", 1, "SWOR");
         const market = await Market.new(token.address);
         await market.send(0, {gas: gasPrice});
-        const vault = await market.my_vault.call();
+        const vault = await market.vaults.call(accounts[0]);
         await sword.transfer(vault, 2);
         await market.create_listing(sword.address, 1, 10);
-        const listing = await market.get_listing(0);
+        const listing = await market.listings.call(0);
         await market.cancel_listing(0);
     });
 });
