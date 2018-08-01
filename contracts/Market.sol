@@ -1,12 +1,10 @@
 pragma solidity ^0.4.24;
 
 import "./lib/Cellar.sol";
-import "./lib/MarketEvents.sol";
 import "./Vault.sol";
 
 contract Market {
     using Cellar for Cellar.Listing;
-    MarketEvents public market_events;
 
     address public base;
     address public owner;
@@ -19,7 +17,6 @@ contract Market {
     constructor (address _base) public {
         owner = msg.sender;
         base = _base;
-        market_events = new MarketEvents();
     }
 
     /// @notice Create a listing on the marketplace
@@ -46,7 +43,7 @@ contract Market {
         listings.push(listing);
         listing_count++;
 
-        market_events.listing_created(msg.sender, listing.id);
+        emit ListingCreated(msg.sender, listing.id);
     }
 
     /// @notice Cancel a listing and unlock assets
@@ -62,7 +59,7 @@ contract Market {
 
         listing.status = 2;
 
-        market_events.listing_cancelled(id);
+        emit ListingCancelled(id);
     }
 
     /// @notice Fulfill a listing and purchase merchants asset
@@ -83,7 +80,7 @@ contract Market {
 
         listing.status = 1;
 
-        market_events.listing_fulfilled(id, msg.sender);
+        emit ListingFulfilled(id, msg.sender);
     }
 
     /// @notice Utilize the fallback function, send 0 ETH to create a new vault for the merchant
@@ -96,6 +93,11 @@ contract Market {
         );
 
         // Vault Creation Event
-        market_events.vault_created(msg.sender, vaults[msg.sender]);
+        emit VaultCreated(msg.sender, vaults[msg.sender]);
     }
+
+    event VaultCreated (address merchant, address vault);
+    event ListingCreated (address merchant, uint id);
+    event ListingFulfilled (uint id, address buyer);
+    event ListingCancelled (uint id);
 }
