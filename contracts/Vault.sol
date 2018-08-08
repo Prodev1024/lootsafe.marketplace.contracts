@@ -1,9 +1,10 @@
 // Restricted access wallet contract
 // https://github.com/lootsafe/lootsafe.auctionhou.se.contracts
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "./lib/EIP20Interface.sol";
 import "./Market.sol";
+import "./lib/SafeMath.sol";
 
 contract Vault {
     /* The Vault acts as a storage account managed by two parties.
@@ -14,9 +15,10 @@ contract Vault {
     preventing failed transactions and wasted gas from parties trying 
     to fulfil the listing later on.
     */
+    using SafeMath for uint256;
 
     /// @notice Assets currently locked in functionality by parent contract
-    mapping (address => uint256) locked_assets;
+    mapping (address => uint256) public locked_assets;
 
     Market public parent; // Origin contract
     address public merchant; // Owner of this inventory
@@ -33,12 +35,6 @@ contract Vault {
         _;
     }
 
-    /// @notice Allows both parties to execute
-    modifier multi_auth {
-        require(msg.sender == address(parent) || msg.sender == merchant, "UNAUTHORIZED MULTIAUTH SENDER");
-        _;
-    }
-
     /// @notice Vault constructor
     /// @param _merchant The owner of this Vault, 
     constructor (address _merchant) public {
@@ -49,7 +45,7 @@ contract Vault {
     /// @notice Check balances of assets
     /// @param asset Address of asset to check balance of
     /// @param value Value expected to have
-    function has_balance (address asset, uint256 value) public returns (bool) {
+    function has_balance (address asset, uint256 value) public view returns (bool) {
         return (EIP20Interface(asset).balanceOf(this) >= value);
     }
 
@@ -57,7 +53,10 @@ contract Vault {
     /// @param asset Address of asset to be locked up
     /// @param amount Amount of asset to lock up
     function lock_asset (address asset, uint256 amount) public only_parent {
-        locked_assets[asset] += amount;
+        require(EIP20Interface(asset).balanceOf(this) >= amount, "ASSET LOCK MISMATCH");
+        locked_assets[asset] = locked_assets[asset].add(amount);
+
+        emit AssetsLocked(asset, amount);
     }
 
     /// @notice Unlock assets from withdraw
@@ -65,7 +64,9 @@ contract Vault {
     /// @param amount Amount of asset to unlocked
     function unlock_asset (address asset, uint256 amount) public only_parent {
         require(locked_assets[asset] >= amount, "UNDERFLOW OF LOCKED ASSETS");
-        locked_assets[asset] = locked_assets[asset] - amount;
+        locked_assets[asset] = locked_assets[asset].sub(amount);
+
+        emit AssetsUnlocked(asset, amount);
     }
     
 
@@ -93,4 +94,7 @@ contract Vault {
     function ether_saver () public only_merchant {
         msg.sender.transfer(address(this).balance);
     }
+
+    event AssetsLocked (address asset, uint amount);
+    event AssetsUnlocked (address asset, uint amount);
 }

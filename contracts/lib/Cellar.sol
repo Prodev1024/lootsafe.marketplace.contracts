@@ -1,5 +1,5 @@
 // The celler contains all libraries needed for the auction house
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 library Cellar {
     // Represents a market listing

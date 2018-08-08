@@ -1,13 +1,14 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "./lib/Cellar.sol";
 import "./Vault.sol";
+import "./lib/SafeMath.sol";
 
 contract Market {
     using Cellar for Cellar.Listing;
+    using SafeMath for uint256;
 
     address public base;
-    address public owner;
 
     Cellar.Listing[] public listings;
     uint public listing_count = 0;
@@ -15,7 +16,6 @@ contract Market {
     mapping (address => address) public vaults;
 
     constructor (address _base) public {
-        owner = msg.sender;
         base = _base;
     }
 
@@ -41,7 +41,7 @@ contract Market {
         vault.lock_asset(asset, amount);
 
         listings.push(listing);
-        listing_count++;
+        listing_count = listing_count.add(1);
 
         emit ListingCreated(msg.sender, listing.id);
     }
