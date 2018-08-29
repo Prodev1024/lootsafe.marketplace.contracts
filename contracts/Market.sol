@@ -74,8 +74,8 @@ contract Market {
         require(vaults[msg.sender] != 0x0, "MISSING VAULT");
         require(vault.has_balance(base, listing.value), "INSUFFICIENT FUNDS");
 
-        vault.transfer(listing.merchant, base, listing.value);
-        merchant_vault.transfer(msg.sender, listing.asset, listing.amount);
+        vault.transfer(vaults[listing.merchant], base, listing.value);
+        merchant_vault.transfer(vaults[msg.sender], listing.asset, listing.amount);
         merchant_vault.unlock_asset(listing.asset, listing.amount);
 
         listing.status = 1;
